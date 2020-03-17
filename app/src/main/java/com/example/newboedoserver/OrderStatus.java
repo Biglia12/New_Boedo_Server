@@ -9,20 +9,34 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.newboedoserver.Common.Common;
 import com.example.newboedoserver.Interface.ItemClickListener;
+import com.example.newboedoserver.Model.MyResponse;
+import com.example.newboedoserver.Model.Notification;
 import com.example.newboedoserver.Model.Request;
+import com.example.newboedoserver.Model.Sender;
+import com.example.newboedoserver.Model.Token;
+import com.example.newboedoserver.Remote.APIService;
 import com.example.newboedoserver.ViewHolder.OrderViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OrderStatus extends AppCompatActivity {
 
@@ -31,10 +45,12 @@ public class OrderStatus extends AppCompatActivity {
 
     FirebaseRecyclerAdapter<Request, OrderViewHolder> adapter;
 
-    FirebaseDatabase db;
+    FirebaseDatabase database;
     DatabaseReference requests;
 
     MaterialSpinner spinner;
+
+    APIService mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +58,10 @@ public class OrderStatus extends AppCompatActivity {
         setContentView(R.layout.activity_order_status);
 
         //Firebase
-        db=FirebaseDatabase.getInstance();
-        requests=db.getReference("Requests");
+        database=FirebaseDatabase.getInstance();
+        requests=database.getReference("Requests");
+
+
 
         recyclerView=findViewById(R.id.listOrders);
         recyclerView.setHasFixedSize(true);
@@ -64,16 +82,31 @@ public class OrderStatus extends AppCompatActivity {
                 holder.txtOrderEstados.setText(Common.convertCodeToStatus(model.getEstados()));
                 holder.txtOrderDireccion.setText(model.getDireccion());
                 holder.txtOrderTelefono.setText(model.getTelefono());
+                holder.txtOrderDate.setText(Common.getDate(Long.parseLong(adapter.getRef(position).getKey())));
 
-                holder.setItemClickListener(new ItemClickListener() {
-                    @Override
-                    public void onClick(View view, int position, boolean isLongClick) {
+                holder.btnEdit.setOnClickListener((View v) -> { //codigo lambda (se actualizo por el codigo anterior)
 
-                    }
+                        showUpdateDialog(adapter.getRef(position).getKey(),
+                                adapter.getItem(position));
                 });
-                Intent trackingOrder=new Intent(OrderStatus.this,TrackingOrder.class);
-                Common.currentRequest=model;
-                startActivity(trackingOrder);
+
+                holder.btnRemove.setOnClickListener((View v) -> {
+
+                        deleteOrder(adapter.getRef(position).getKey());
+                });
+
+                holder.btnDetail.setOnClickListener((View v)-> {
+
+                        Intent orderDetail  =new Intent(OrderStatus.this,OrderDetail.class);
+                        Common.currentRequest=model;
+                        orderDetail.putExtra("OrderId",adapter.getRef(position).getKey());
+                        startActivity(orderDetail);
+                });
+                holder.btnDirection.setOnClickListener((View v) -> {
+                          Intent trackingOrder=new Intent(OrderStatus.this,TrackingOrder.class);
+                          Common.currentRequest=model;
+                          startActivity(trackingOrder);
+                });
 
 
             }
@@ -93,7 +126,7 @@ public class OrderStatus extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    @Override
+  /*  @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
        if (item.getTitle().equals(Common.UPDATE))
            showUpdateDialog(adapter.getRef(item.getOrder()).getKey(),adapter.getItem(item.getOrder()));
@@ -101,10 +134,11 @@ public class OrderStatus extends AppCompatActivity {
            deleteOrder(adapter.getRef(item.getOrder()).getKey());
         return super.onContextItemSelected(item);
 
-    }
+    }*/
 
     private void deleteOrder(String key) {
         requests.child(key).removeValue();
+        adapter.notifyDataSetChanged();
 
 
     }
@@ -118,29 +152,73 @@ public class OrderStatus extends AppCompatActivity {
         final View view=inflater.inflate(R.layout.update_order_layout,null);
 
         spinner=view.findViewById(R.id.statusSpinner);
-        spinner.setItems("En lugar","En camino","Enviado");
+        spinner.setItems("En lugar","Enviando","Enviado");
 
         alertDialog.setView(view);
 
         final String localKey=key;
-        alertDialog.setPositiveButton("SI", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                item.setEstados(String.valueOf(spinner.getSelectedIndex()));
+        alertDialog.setPositiveButton("SI", (dialog, which) -> {
+            dialog.dismiss();
+            item.setEstados(String.valueOf(spinner.getSelectedIndex()));
+            requests.child(localKey).setValue(item);
 
-                requests.child(localKey).setValue(item);
-            }
+            sendOrderStatusToUser(localKey,item);
+            adapter.notifyDataSetChanged();
+
         });
 
-        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        alertDialog.setNegativeButton("NO", (dialog, which) -> dialog.dismiss());
 
         alertDialog.show();
 
+    }
+
+    private void sendOrderStatusToUser(final String key,Request item) {
+        DatabaseReference tokens=database.getReference("Tokens");
+
+        tokens.orderByKey().equalTo(key)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot postSnapShot1 : dataSnapshot.getChildren())
+                        {
+                            Token token = postSnapShot1.getValue(Token.class);
+
+                            Notification notification = new Notification("New Boedo","Su orden"+key+"fue actualizada");
+
+                            Sender content = new Sender(token.getToken(),notification);
+
+                            mService.sendNotification(content)
+                                    .enqueue(new Callback<MyResponse>() {
+                                        @Override
+                                        public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+
+                                            if (response.code() == 200) {
+                                                if (response.body().success == 1) {
+
+                                                    Toast.makeText(OrderStatus.this, "Orden fue actulizada!", Toast.LENGTH_SHORT).show();
+                                                } else {
+
+                                                    Log.e("notificacion","enRespuesta"+key+"fallo");
+                                                    Toast.makeText(OrderStatus.this, "Orden fue actulizada pero fallo !", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<MyResponse> call, Throwable t) {
+                                            Log.e("ERROR", "onFailure: "+t.getMessage() );
+
+                                        }
+                                    });
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 }

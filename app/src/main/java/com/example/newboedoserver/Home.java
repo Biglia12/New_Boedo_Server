@@ -9,11 +9,13 @@ import android.os.Bundle;
 import com.example.newboedoserver.Common.Common;
 import com.example.newboedoserver.Interface.ItemClickListener;
 import com.example.newboedoserver.Model.Categoria;
+import com.example.newboedoserver.Model.Token;
 import com.example.newboedoserver.ViewHolder.MenuViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -28,8 +30,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.GravityCompat;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -93,17 +101,17 @@ TextView txtFullName;
         setSupportActionBar(toolbar);
 
         //iniciar firebase
-        database=FirebaseDatabase.getInstance();
-        categories=database.getReference("Categoria");
-        storage=FirebaseStorage.getInstance();
-        storageReference=storage.getReference();
+        database = FirebaseDatabase.getInstance();
+        categories = database.getReference("Categoria");
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               showDialog();
+                showDialog();
             }
         });
         //abrir el hamburguer
@@ -116,7 +124,7 @@ TextView txtFullName;
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerView = navigationView.getHeaderView(0);
-        txtFullName=headerView.findViewById(R.id.txtFullName);
+        txtFullName = headerView.findViewById(R.id.txtFullName);
         txtFullName.setText(Common.currentUser.getName());
 
        /* if (txtFullName!=null )txtFullName.setText(Common.currentUser.getName());{
@@ -125,12 +133,31 @@ TextView txtFullName;
 
 
         //Init view
-        recycler_menu=findViewById(R.id.recycler_menu);
+        recycler_menu = findViewById(R.id.recycler_menu);
         recycler_menu.setHasFixedSize(true);
-        layoutManager=new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
         recycler_menu.setLayoutManager(layoutManager);
 
         loadMenu();
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
+        //updateToken(FirebaseInstanceId.getInstance().getInstanceId());
+
+    }
+
+
+   /* private void updateToken(Task<InstanceIdResult> instanceId) {
+        FirebaseDatabase db=FirebaseDatabase.getInstance();
+        DatabaseReference tokens = db.getReference("Tokens");
+        Token data = new Token(instanceId,true);
+        tokens.child(Common.currentUser.getPhone()).setValue(data);
+    }*/
+
+   private void updateToken(String token) {
+        FirebaseDatabase db=FirebaseDatabase.getInstance();
+        DatabaseReference tokens = db.getReference("Tokens");
+        Token data = new Token(token,true);
+        tokens.child(Common.currentUser.getPhone()).setValue(data);
 
     }
 
@@ -363,6 +390,24 @@ TextView txtFullName;
     }
 
     private void deleteCategory(String key) {
+
+        DatabaseReference foods = database.getReference("Comidas");
+        Query foodInCategory = foods.orderByChild("menuId").equalTo(key);
+        foodInCategory.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot:dataSnapshot.getChildren())
+                {
+                    postSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         categories.child(key).removeValue();
         Toast.makeText(this,"Item Eliminado!!!",Toast.LENGTH_SHORT).show();
     }

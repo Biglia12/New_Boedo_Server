@@ -3,8 +3,7 @@ package com.example.newboedoserver.Remote;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
-public class RetrofitClient {
+public class FCMRetrofitClient {
 
     private static Retrofit retrofit;
 
@@ -21,3 +20,4 @@ public class RetrofitClient {
         return retrofit;
     }
 }
+

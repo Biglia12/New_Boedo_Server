@@ -173,7 +173,7 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
                 //despues de agregar marcador, agregar maracados apra esta orden
                 drawRoute(yourLocation, Common.currentRequest.getDireccion());
             } else {
-                // Toast.makeText(this,"No se pudo obtener la ubicación",Toast.LENGTH_SHORT).show();
+                 Toast.makeText(this,"No se pudo obtener la ubicación",Toast.LENGTH_SHORT).show();
                 Log.d("DEBUG", "No se pudo obtener la ubicación");
 
             }
@@ -276,6 +276,7 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
     }
 
     @Override
