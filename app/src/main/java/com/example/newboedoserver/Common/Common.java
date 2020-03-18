@@ -27,11 +27,10 @@ public class Common {
     public static final String baseUrl = "https://maps.googleapis.com";
 
     public static final String BASE_URL = "https://fcm.googleapis.com/";
+    public static String PHONE_TEXT="userPhone";
 
 
-
-    public static APIService getFCMCClient() {
-
+    public static APIService getFCMSerivice() {
         return FCMRetrofitClient.getClient(BASE_URL).create(APIService.class);
     }
 

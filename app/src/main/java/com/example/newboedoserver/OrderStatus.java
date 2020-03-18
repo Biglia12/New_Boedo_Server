@@ -57,6 +57,8 @@ public class OrderStatus extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_status);
 
+        mService = Common.getFCMSerivice();//
+
         //Firebase
         database=FirebaseDatabase.getInstance();
         requests=database.getReference("Requests");
@@ -176,13 +178,12 @@ public class OrderStatus extends AppCompatActivity {
     private void sendOrderStatusToUser(final String key,Request item) {
         DatabaseReference tokens=database.getReference("Tokens");
 
-        tokens.orderByKey().equalTo(key)
+        tokens.child(item.getTelefono())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot postSnapShot1 : dataSnapshot.getChildren())
-                        {
-                            Token token = postSnapShot1.getValue(Token.class);
+                        if (dataSnapshot.exists()) {
+                            Token token = dataSnapshot.getValue(Token.class);
 
                             Notification notification = new Notification("New Boedo","Su orden"+key+"fue actualizada");
 
