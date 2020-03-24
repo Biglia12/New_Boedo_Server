@@ -74,6 +74,35 @@
                 android:text="Direccion"
                 android:textAllCaps="true"
                 android:textStyle="italic" />
+            <TextView
+                android:id="@+id/order_entrecalles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|start"
+                android:text="entrecalles"
+                android:textAllCaps="true"
+                android:textStyle="italic" />
+            <TextView
+                android:id="@+id/order_pisoydepartamento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|start"
+                android:text="pisoydepartamento"
+                android:textAllCaps="true"
+                android:textStyle="italic" />
+            <TextView
+                android:id="@+id/order_localidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|start"
+                android:text="localidad"
+                android:textAllCaps="true"
+                android:textStyle="italic" />
+
+
 
 
         </LinearLayout>

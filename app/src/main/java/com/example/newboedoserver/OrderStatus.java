@@ -83,6 +83,9 @@ public class OrderStatus extends AppCompatActivity {
                 holder.txtOrderId.setText(adapter.getRef(position).getKey());
                 holder.txtOrderEstados.setText(Common.convertCodeToStatus(model.getEstados()));
                 holder.txtOrderDireccion.setText(model.getDireccion());
+                holder.txtEntrecalles.setText(model.getEntrecalles());
+                holder.txtpisoydepartamento.setText(model.getPisoydepartamento());
+                holder.txtlocalidad.setText(model.getLocalidad());
                 holder.txtOrderTelefono.setText(model.getTelefono());
                 holder.txtOrderDate.setText(Common.getDate(Long.parseLong(adapter.getRef(position).getKey())));
 
