@@ -51,7 +51,7 @@ public class NotificationHelper extends ContextWrapper {
                 .setContentIntent(contentIntent)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_newboedonotification32323)
                 .setSound(soundUri)
                 .setAutoCancel(false);
     }
@@ -61,7 +61,7 @@ public class NotificationHelper extends ContextWrapper {
         return new Notification.Builder(getApplicationContext(),NEW_BOEDO_ID)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_newboedonotification32323)
                 .setSound(soundUri)
                 .setAutoCancel(false);
     }

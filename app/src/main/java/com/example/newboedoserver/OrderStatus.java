@@ -81,6 +81,8 @@ public class OrderStatus extends AppCompatActivity {
             @Override
             protected void onBindViewHolder(@NonNull OrderViewHolder holder, int position, @NonNull Request model) {
                 holder.txtOrderId.setText(adapter.getRef(position).getKey());
+                holder.txtOrderName.setText(model.getNombre());
+                holder.txtOrderApellido.setText(model.getApellido());
                 holder.txtOrderEstados.setText(Common.convertCodeToStatus(model.getEstados()));
                 holder.txtOrderDireccion.setText(model.getDireccion());
                 holder.txtEntrecalles.setText(model.getEntrecalles());
@@ -97,7 +99,28 @@ public class OrderStatus extends AppCompatActivity {
 
                 holder.btnRemove.setOnClickListener((View v) -> {
 
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(OrderStatus.this);
+
+                    builder.setTitle("Confirmacion");
+                    builder.setMessage("Estas seguro?");
+
+                    builder.setPositiveButton("SI", (dialog, which) -> {
+                        // Do nothing but close the dialog
+
                         deleteOrder(adapter.getRef(position).getKey());
+
+                        dialog.dismiss();
+                    });
+
+                    builder.setNegativeButton("NO", (dialog, which) -> {
+
+                        // Do nothing
+                        dialog.dismiss();
+                    });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
                 });
 
                 holder.btnDetail.setOnClickListener((View v)-> {
@@ -107,11 +130,11 @@ public class OrderStatus extends AppCompatActivity {
                         orderDetail.putExtra("OrderId",adapter.getRef(position).getKey());
                         startActivity(orderDetail);
                 });
-                holder.btnDirection.setOnClickListener((View v) -> {
+                /*holder.btnDirection.setOnClickListener((View v) -> {
                           Intent trackingOrder=new Intent(OrderStatus.this,TrackingOrder.class);
                           Common.currentRequest=model;
                           startActivity(trackingOrder);
-                });
+                });*/
 
 
             }
@@ -157,7 +180,7 @@ public class OrderStatus extends AppCompatActivity {
         final View view=inflater.inflate(R.layout.update_order_layout,null);
 
         spinner=view.findViewById(R.id.statusSpinner);
-        spinner.setItems("En lugar","Enviando","Enviado");
+        spinner.setItems("Orden recibida","Orden enviada","Puede retirar la orden");
 
         alertDialog.setView(view);
 
@@ -188,7 +211,7 @@ public class OrderStatus extends AppCompatActivity {
                         if (dataSnapshot.exists()) {
                             Token token = dataSnapshot.getValue(Token.class);
 
-                            Notification notification = new Notification("New Boedo","Su orden"+key+"fue actualizada");
+                            Notification notification = new Notification("New Boedo","Su orden Se ha actualizado");
 
                             Sender content = new Sender(token.getToken(),notification);
 

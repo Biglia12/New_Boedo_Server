@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -27,6 +28,8 @@ public class SignIn extends AppCompatActivity {
     FirebaseDatabase db;
     DatabaseReference users;
 
+    CheckBox remember;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,7 @@ public class SignIn extends AppCompatActivity {
         edtPhone = findViewById(R.id.edtPhone);
         edtPassword = findViewById(R.id.edtPassword);
         btnSignIn = findViewById(R.id.btnSignIn);
+        remember=findViewById(R.id.ckbRemember);
 
         //iniciar firebase
         db=FirebaseDatabase.getInstance();
@@ -73,6 +77,7 @@ public class SignIn extends AppCompatActivity {
                     startActivity(login);
                     finish();
                 }
+
                    else
                     Toast.makeText(SignIn.this,"Contraseña Incorrecta",Toast.LENGTH_SHORT).show();
                 }

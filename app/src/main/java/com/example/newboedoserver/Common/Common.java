@@ -36,11 +36,11 @@ public class Common {
 
     public static String convertCodeToStatus(String code) {
         if (code.equals("0"))
-            return "En lugar";
+            return "Orden Recibida";
         else if (code.equals("1"))
-            return "Enviando";
+            return "Orden enviada";
         else
-            return "Enviado";
+            return "Puede retirar la orden";
     }
 
     public static IGeoCoordinates getGeoCodeService() {

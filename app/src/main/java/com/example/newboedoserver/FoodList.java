@@ -300,49 +300,35 @@ public class FoodList extends AppCompatActivity {
         btnUpload=add_menu_layout.findViewById(R.id.btnUpload);
 
         //Evento para el boton
-        btnSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chooseImage();//copiar de Home Activity
-            }
+        btnSelect.setOnClickListener(v -> {
+            chooseImage();//copiar de Home Activity
         });
 
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeImage(item);//copiar de Home Activity
-            }
+        btnUpload.setOnClickListener(v -> {
+            changeImage(item);//copiar de Home Activity
         });
 
         alertDialog.setView(add_menu_layout);
         alertDialog.setIcon(R.drawable.ic_shopping_cart_black_24dp);
 
         //set Button
-        alertDialog.setPositiveButton("SI", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
+        alertDialog.setPositiveButton("SI", (dialog, i) -> {
+            dialog.dismiss();
+            //aqui, creamos nueva categoria
+           //if (item!=null)
+            //{
+                //actualizar info
+                item.setNombre(edtName.getText().toString());
+                item.setPrecio(edtPrice.getText().toString());
+                item.setDescripcion(edtDescription.getText().toString());
+                item.setDescuento(edtDiscount.getText().toString());
 
-                //aqui, creamos nueva categoria
-                if (newFood!=null)
-                {
-                    //actualizar info
-                    item.setNombre(edtName.getText().toString());
-                    item.setPrecio(edtPrice.getText().toString());
-                    item.setDescripcion(edtDescription.getText().toString());
-                    item.setDescuento(edtDiscount.getText().toString());
+                foodList.child(key).setValue(item);
+                Snackbar.make(rootLayout,"Comida"+item.getNombre()+"fue editada",Snackbar.LENGTH_SHORT).show();
 
-                    foodList.child(key).setValue(item);
-                    Snackbar.make(rootLayout,"Comida"+newFood.getNombre()+"fue editada",Snackbar.LENGTH_SHORT).show();
-                }
-            }
+            //}
         });
-        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
-            }
-        });
+        alertDialog.setNegativeButton("NO", (dialog, i) -> dialog.dismiss());
         alertDialog.show();
 
     }
@@ -357,33 +343,21 @@ public class FoodList extends AppCompatActivity {
             String imageName= UUID.randomUUID().toString();
             final StorageReference imageFolder = storageReference.child("imagenes/"+imageName);
             imageFolder.putFile(saveUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            mDialog.dismiss();
-                            Toast.makeText(FoodList.this,"Subido!!!",Toast.LENGTH_SHORT).show();
-                            imageFolder.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    //establecer valor para nueva categoria si ka imgane esta subida y nsosotros podemos obtener el link
-                                    item.setImagen(uri.toString());
-                                }
-                            });
-                        }
+                    .addOnSuccessListener(taskSnapshot -> {
+                        mDialog.dismiss();
+                        Toast.makeText(FoodList.this,"Subido!!!",Toast.LENGTH_SHORT).show();
+                        imageFolder.getDownloadUrl().addOnSuccessListener(uri -> {
+                            //establecer valor para nueva categoria si ka imgane esta subida y nsosotros podemos obtener el link
+                            item.setImagen(uri.toString());
+                        });
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            mDialog.dismiss();
-                            Toast.makeText(FoodList.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                    .addOnFailureListener(e -> {
+                        mDialog.dismiss();
+                        Toast.makeText(FoodList.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                     })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress=(100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                            mDialog.setMessage("Subido"+progress +"%");
-                        }
+                    .addOnProgressListener(taskSnapshot -> {
+                        double progress=(100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+                        mDialog.setMessage("Subido"+progress +"%");
                     });
         }
     }

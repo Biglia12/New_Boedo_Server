@@ -44,7 +44,24 @@
                 android:text="#111111"
                 android:textAllCaps="true"
                 android:textStyle="italic" />
-
+            <TextView
+                android:id="@+id/order_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|start"
+                android:text="nombre"
+                android:textAllCaps="true"
+                android:textStyle="italic" />
+            <TextView
+                android:id="@+id/order_apellido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical|start"
+                android:text="apellido"
+                android:textAllCaps="true"
+                android:textStyle="italic" />
             <TextView
                 android:id="@+id/order_estados"
                 android:layout_width="wrap_content"
@@ -136,14 +153,14 @@
             android:textColor="@android:color/black"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />
-        <Button
+        <!--<Button
             android:id="@+id/btnDirection"
             android:layout_weight="1"
             android:text="Direccion"
             android:background="@android:color/white"
             android:textColor="@android:color/black"
             android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content" />-->
         <Button
             android:id="@+id/btnDetail"
             android:layout_weight="1"

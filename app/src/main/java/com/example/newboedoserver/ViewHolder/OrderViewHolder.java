@@ -16,7 +16,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder /*implements View.O
 
         ,View.OnCreateContextMenuListener*/ {
 
-    public TextView txtOrderId,txtOrderEstados,txtOrderTelefono,txtOrderDireccion,txtEntrecalles,txtpisoydepartamento,txtlocalidad,txtOrderDate;
+    public TextView txtOrderId,txtOrderEstados,txtOrderName,txtOrderApellido,txtOrderTelefono,txtOrderDireccion,txtEntrecalles,txtpisoydepartamento,txtlocalidad,txtOrderDate;
 
     public Button btnEdit,btnRemove,btnDetail,btnDirection;
 
@@ -25,6 +25,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder /*implements View.O
     public OrderViewHolder(@NonNull View itemView) {
         super(itemView);
         txtOrderDireccion = itemView.findViewById(R.id.order_direccion);
+        txtOrderName=itemView.findViewById(R.id.order_name);
+        txtOrderApellido=itemView.findViewById(R.id.order_apellido);
         txtEntrecalles=itemView.findViewById(R.id.order_entrecalles);
         txtlocalidad=itemView.findViewById(R.id.order_localidad);
         txtpisoydepartamento=itemView.findViewById(R.id.order_pisoydepartamento);
@@ -36,7 +38,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder /*implements View.O
 
         btnEdit= itemView.findViewById(R.id.btnedit);
         btnDetail= itemView.findViewById(R.id.btnDetail);
-        btnDirection= itemView.findViewById(R.id.btnDirection);
+        //btnDirection= itemView.findViewById(R.id.btnDirection);
         btnRemove= itemView.findViewById(R.id.btndelete);
 
 
